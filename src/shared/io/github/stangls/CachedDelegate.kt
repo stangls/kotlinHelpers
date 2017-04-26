@@ -1,6 +1,5 @@
 package io.github.stangls
 
-import java.util.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -11,7 +10,7 @@ open class CachedDelegate<in C,T:Any?> (
 
     protected var cachedValue: T? = null
         set(value) {
-            lastWritten = Date().time
+            lastWritten = currentTimeMs()
             field=value
         }
     protected var lastWritten : Long = 0L
@@ -22,11 +21,13 @@ open class CachedDelegate<in C,T:Any?> (
     }
 
     override fun getValue(thisRef: C, property: KProperty<*>): T {
-        val now = Date().time
+        val now = currentTimeMs()
         if (lastWritten==0L || timeout!=null && (lastWritten+timeout<=now)) {
             lastWritten=now
             cachedValue = del.getValue(thisRef,property)
         }
         return cachedValue as T
     }
+
 }
+
